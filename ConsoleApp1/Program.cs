@@ -1,36 +1,74 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CoinChange
 {
     class Program
     {
-        public static long MakeChange(int[] coins, int money, int index)
+        private static Dictionary<string, long> _solution = new Dictionary<string, long>();
+        public static long MakeChange(int[] coins, int amountToMake)
         {
-            if(money == 0){
+            return MakeChange(coins, amountToMake, 0);
+        }
+        private static long MakeChange(int[] coins, int amountToMake, int index)
+        {
+            if(amountToMake == 0){
                 return 1;
-            }
-
+            }       
             if(index >= coins.Length){
                 return 0;
             }
 
-            int amountWithCoin = 0;
-            long ways = 0;
-            while(amountWithCoin <= money)
+            int amountMadeTillNow = 0;
+            long solutionCount = 0;
+            while(amountMadeTillNow <= amountToMake)
             {
-                int remaining = money - amountWithCoin;                
-                amountWithCoin += coins[index];
+                int remaining = amountToMake - amountMadeTillNow;
+                amountMadeTillNow += coins[index];
 
-                ways += MakeChange(coins, remaining, index + 1);
+                solutionCount += MakeChange(coins, remaining, index + 1);
             }
-            return ways;
+            return solutionCount;
+        }
+
+        public static long MakeChangeMemonized(int[] coins, int amountToMake)
+        {
+            return MakeChangeMemonized(coins, amountToMake, 0);
+        }
+        public static long MakeChangeMemonized(int[] coins, int amountToMake, int index)
+        {
+            if (amountToMake == 0)
+            {
+                return 1;
+            }
+            if (index >= coins.Length)
+            {
+                return 0;
+            }
+            string key = amountToMake + "-" + index;
+            if(_solution.ContainsKey(key)) return _solution[key];
+            
+
+            int amountMadeTillNow = 0;
+            long solutionCount = 0;
+            while (amountMadeTillNow <= amountToMake)
+            {
+                int remaining = amountToMake - amountMadeTillNow;
+                amountMadeTillNow += coins[index];
+                
+                solutionCount += MakeChange(coins, remaining, index + 1);
+            }
+            
+            _solution[key] = solutionCount;
+            return solutionCount;
         }
         static void Main(string[] args)
         {
-            const int Amount = 5;
-            int[] denominations = { 1,2,5,10 };
-            Console.WriteLine(MakeChange(denominations,5,0));
-            
+            const int Amount = 100;
+            int[] denominations = {2, 1};
+            Console.WriteLine(MakeChange(denominations, Amount));
+            Console.WriteLine(MakeChangeMemonized(denominations, Amount));
+
         }
     }
 }
